@@ -1,0 +1,10 @@
+{
+  "name": "Korean Master AI",
+  "description": "Professional AI Learning System for Korean Language (Uzbek). Beginner to TOPIK Master.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
