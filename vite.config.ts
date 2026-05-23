@@ -6,7 +6,7 @@ import {defineConfig, loadEnv} from 'vite';
 export default defineConfig(({mode, command}) => {
   const env = loadEnv(mode, '.', '');
   return {
-    base: command === 'build' ? './' : '/',
+    base: '/Korea-tilini-organish/',
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
