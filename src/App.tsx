@@ -42,13 +42,14 @@ import AITutor from './components/AITutor';
 import Quiz from './components/Quiz';
 import Vocabulary from './components/Vocabulary';
 import Roadmap from './components/Roadmap';
+import SearchAI from './components/SearchAI';
 
 import Listening from './components/Listening';
 import Speaking from './components/Speaking';
 import Simulator from './components/Simulator';
 import TopikMaster from './components/TopikMaster';
 
-type Tab = 'home' | 'alphabet' | 'numbers' | 'grammar' | 'youtube' | 'tutor' | 'quiz' | 'vocabulary' | 'roadmap' | 'listening' | 'speaking' | 'simulator' | 'topik';
+type Tab = 'home' | 'alphabet' | 'numbers' | 'grammar' | 'youtube' | 'tutor' | 'quiz' | 'vocabulary' | 'roadmap' | 'listening' | 'speaking' | 'simulator' | 'topik' | 'search_ai';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -56,7 +57,7 @@ export default function App() {
   const [level, setLevel] = useState(() => Math.floor(xp / 100) + 1);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('k_master_theme') === 'dark');
   const [streak, setStreak] = useState(() => Number(localStorage.getItem('k_master_streak')) || 1);
-
+  
   useEffect(() => {
     // Basic streak logic: if opened, increment or keep (simple version for now)
     const lastVisit = localStorage.getItem('k_master_last_visit');
@@ -99,6 +100,7 @@ export default function App() {
   const tabs = [
     { id: 'home', name: 'Home', icon: GraduationCap },
     { id: 'roadmap', name: 'Roadmap', icon: Map },
+    { id: 'search_ai', name: 'Search AI', icon: Search },
     { id: 'alphabet', name: 'Alphabet', icon: Grid3X3 },
     { id: 'numbers', name: 'Numbers', icon: Hash },
     { id: 'vocabulary', name: 'Words', icon: Layers },
@@ -213,6 +215,7 @@ export default function App() {
             >
               {activeTab === 'home' && <Home onStart={() => setActiveTab('roadmap')} xp={xp} level={level} streak={streak} setTab={setActiveTab} />}
               {activeTab === 'roadmap' && <Roadmap />}
+              {activeTab === 'search_ai' && <SearchAI />}
               {activeTab === 'alphabet' && <Alphabet />}
               {activeTab === 'numbers' && <Numbers />}
               {activeTab === 'vocabulary' && <Vocabulary />}
