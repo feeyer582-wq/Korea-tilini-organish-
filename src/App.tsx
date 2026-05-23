@@ -48,6 +48,7 @@ import Listening from './components/Listening';
 import Speaking from './components/Speaking';
 import Simulator from './components/Simulator';
 import TopikMaster from './components/TopikMaster';
+import { getApiKey, setApiKey, hasApiKey } from './lib/geminiClient';
 
 type Tab = 'home' | 'alphabet' | 'numbers' | 'grammar' | 'youtube' | 'tutor' | 'quiz' | 'vocabulary' | 'roadmap' | 'listening' | 'speaking' | 'simulator' | 'topik' | 'search_ai';
 
@@ -419,6 +420,7 @@ function Home({ onStart, xp, level, streak, setTab }: { onStart: () => void, xp:
                 </button>
               ))}
            </div>
+           <ApiKeySettings />
         </div>
       </div>
     );
@@ -502,6 +504,7 @@ function Home({ onStart, xp, level, streak, setTab }: { onStart: () => void, xp:
           className="md:col-span-12 lg:col-span-4 border-emerald-100 bg-emerald-50/50"
         />
       </div>
+      <ApiKeySettings />
     </div>
   );
 }
@@ -526,5 +529,56 @@ function FeatureCard({ icon, title, desc, id, className }: { icon: React.ReactNo
         {desc}
       </p>
     </motion.div>
+  );
+}
+
+function ApiKeySettings() {
+  const [keyInput, setKeyInput] = useState(() => getApiKey());
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setApiKey(keyInput);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] shadow-sm max-w-4xl mx-auto mt-12 transition-all duration-300">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+            <Sparkles size={20} className="animate-pulse text-amber-500" />
+          </div>
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-wider dark:text-white">Jonli AI Rejimi (Static / Bepul)</h4>
+            <p className="text-[10px] font-bold text-slate-400 mt-0.5">Ilova GitHub Pages-da 100% serverni talab qilmaydigan static shaklda ishlaydi.</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <span className={`px-3 py-1 text-[9px] font-black rounded-lg uppercase tracking-wider border ${hasApiKey() ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'}`}>
+            {hasApiKey() ? "JONLI AI FAOL" : "SIMULYATSIYA REJIMI"}
+          </span>
+        </div>
+      </div>
+      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-bold mb-6">
+        K-Master AI tizimi offline rejimida ishlash uchun boy lokal bilimlarga ega. Agar siz Jonli AI Tutor va real-time qidiruvlarga ega bo'lishni istasangiz, o'zingizning shaxsiy 
+        <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-extrabold ml-1 hover:underline">Google AI Studio-dan bepul Gemini API Kaliti</a>ingizni bu erga ulashingiz mumkin. Kalit faqat sizning shaxsiy brauzeringizda saqlanadi.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <input 
+          type="password"
+          value={keyInput}
+          onChange={(e) => setKeyInput(e.target.value)}
+          placeholder="Gemini API Key-ni kiriting (AIzaSy...)"
+          className="flex-1 px-5 py-3 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none font-sans font-semibold text-xs tracking-wider bg-slate-50 dark:bg-slate-950 dark:text-white focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-all shadow-inner"
+        />
+        <button 
+          onClick={handleSave}
+          className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-200 dark:shadow-none"
+        >
+          {saved ? "Saqlandi! ✓" : "Sozlamalarni Saqlash"}
+        </button>
+      </div>
+    </div>
   );
 }

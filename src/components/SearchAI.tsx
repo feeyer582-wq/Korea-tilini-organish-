@@ -22,6 +22,7 @@ import {
   Check,
   GraduationCap
 } from 'lucide-react';
+import { clientSearch } from '../lib/geminiClient';
 
 type SearchCategory = 'general_grammar' | 'youtube' | 'news' | 'culture_drama';
 
@@ -161,17 +162,7 @@ export default function SearchAI() {
     setShowQuizResult(false);
 
     try {
-      const response = await fetch('/api/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery, category })
-      });
-
-      if (!response.ok) {
-        throw new Error("Tarmoq xatosi yoki API cheklovlari yuz berdi. Iltimos qaytadan urinib ko'ring.");
-      }
-
-      const data = await response.json();
+      const data = await clientSearch(searchQuery, category);
       setResults(data);
     } catch (err: any) {
       console.error("Search error:", err);
@@ -190,21 +181,14 @@ export default function SearchAI() {
     if (ttsPlaying === id) return;
     setTtsPlaying(id);
     try {
-      // Clean up Korean text to extract actual Hangul to play
-      const koreanText = text.replace(/[^\u3131-\uD79D\s,.!?]/g, '').trim();
-      const resp = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: koreanText || text, voice: 'Kore' })
-      });
-      const data = await resp.json();
-      if (data.audio) {
-        const audio = new Audio(`data:audio/wav;base64,${data.audio}`);
-        audio.onended = () => setTtsPlaying(null);
-        await audio.play();
-      } else {
-        setTtsPlaying(null);
-      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      const hasKorean = /[\u3131-\uD79D]/.test(text);
+      utterance.lang = hasKorean ? 'ko-KR' : 'uz-UZ';
+      utterance.rate = 0.95;
+      utterance.onend = () => setTtsPlaying(null);
+      utterance.onerror = () => setTtsPlaying(null);
+      window.speechSynthesis.speak(utterance);
     } catch (err) {
       console.error("TTS output failed", err);
       setTtsPlaying(null);

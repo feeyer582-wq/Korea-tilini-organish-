@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { cn } from '../lib/utils';
+import { clientChat, clientConversation } from '../lib/geminiClient';
 
 interface Correction {
   original: string;
@@ -130,27 +131,7 @@ export default function AITutor() {
   }, [initSpeechRecognition]);
 
   const playProVoice = async (text: string) => {
-    try {
-      const resp = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice: personality.id === 'strict_teacher' ? 'Charon' : 'Kore' })
-      });
-      const data = await resp.json();
-      if (data.audio) {
-        if (audioRef.current) {
-          audioRef.current.src = `data:audio/wav;base64,${data.audio}`;
-          audioRef.current.play();
-        } else {
-          const audio = new Audio(`data:audio/wav;base64,${data.audio}`);
-          audioRef.current = audio;
-          audio.play();
-        }
-      }
-    } catch (e) {
-      console.error("TTS failed, falling back to local synthesis", e);
-      speakLocal(text);
-    }
+    speakLocal(text);
   };
 
   const speakLocal = (text: string) => {
@@ -212,27 +193,19 @@ export default function AITutor() {
     try {
       const history = messages.map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.content }]
+        content: m.content
       }));
 
-      const endpoint = isAdvanced ? '/api/conversation' : '/api/chat';
-      const body = isAdvanced ? {
-        message: textToSend,
-        history,
-        mode: personality.name,
-        scenario: scenario.name,
-        level: level
-      } : { message: textToSend, history };
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      const data = await response.json();
-      
+      let data;
       if (isAdvanced) {
+        data = await clientConversation(
+          textToSend,
+          history,
+          personality.name,
+          scenario.name,
+          level
+        );
+
         const modelMsg: Message = {
           role: 'model',
           content: data.ai_response_kr,
@@ -247,12 +220,13 @@ export default function AITutor() {
         setMessages(prev => [...prev, modelMsg]);
         speak(data.ai_response_kr);
       } else {
+        data = await clientChat(textToSend, history);
         setMessages(prev => [...prev, { role: 'model', content: data.text }]);
         speak(data.text);
       }
     } catch (error: any) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'model', content: "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring." }]);
+      setMessages(prev => [...prev, { role: 'model', content: "Xatolik yuz berdi. Iltimos, API Key-ni tekshiring va qaytadan urinib ko'ring." }]);
     } finally {
       setIsLoading(false);
     }

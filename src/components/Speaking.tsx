@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mic, MicOff, Volume2, Sparkles, CheckCircle2, MessageCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import confetti from 'canvas-confetti';
+import { clientTranslate } from '../lib/geminiClient';
 
 interface Phrase {
   kr: string;
@@ -34,12 +35,7 @@ export default function Speaking() {
 
     setIsTranslating(true);
     try {
-      const response = await fetch('/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: uzInput }),
-      });
-      const data = await response.json();
+      const data = await clientTranslate(uzInput);
       if (data.kr) {
         const newPhrase: Phrase = {
           kr: data.kr,
