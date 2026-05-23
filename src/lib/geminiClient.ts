@@ -1,5 +1,20 @@
 export function getApiKey(): string {
-  const envKey = (process.env.GEMINI_API_KEY || ((import.meta as any).env && (import.meta as any).env.VITE_GEMINI_API_KEY)) as string | undefined;
+  let envKey: string | undefined = undefined;
+  try {
+    // Safely check node-like process environment
+    if (typeof process !== 'undefined' && process && process.env) {
+      envKey = process.env.GEMINI_API_KEY;
+    }
+  } catch (e) {}
+
+  if (!envKey) {
+    try {
+      if (import.meta && (import.meta as any).env) {
+        envKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+      }
+    } catch (e) {}
+  }
+
   if (envKey && envKey.trim() !== "") {
     return envKey;
   }
